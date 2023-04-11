@@ -28,16 +28,26 @@ class ToDoListPage extends StatefulWidget {
 
 class _ToDoListPageState extends State<ToDoListPage> {
   final TextEditingController _textController = TextEditingController();
-  List<String> toDoList = [];
+  List<Map<String, dynamic>> toDoList = [];
 
   void _addToDo() {
     String newToDo = _textController.text.trim();
     if (newToDo.isNotEmpty) {
       setState(() {
-        toDoList.add(newToDo);
+        toDoList.add({
+          'title': newToDo,
+          'completed': false,
+        });
       });
       _textController.clear();
     }
+  }
+
+  void _toggleToDoAtIndex(int index) {
+    setState(() {
+      bool currentValue = toDoList[index]['completed'];
+      toDoList[index]['completed'] = !currentValue;
+    });
   }
 
   void _removeToDoAtIndex(int index) {
@@ -77,21 +87,16 @@ class _ToDoListPageState extends State<ToDoListPage> {
               itemCount: toDoList.length,
               itemBuilder: (BuildContext context, int index) {
                 return ListTile(
-                  tileColor: toDoList[index].startsWith('✔')
+                  tileColor: toDoList[index]['completed']
                       ? Colors.green.withOpacity(0.2)
                       : Colors.red.withOpacity(0.2),
                   leading: Checkbox(
-                    value: toDoList[index].startsWith('✔'),
+                    value: toDoList[index]['completed'],
                     onChanged: (bool? value) {
-                      setState(() {
-                        if (value != null) {
-                          toDoList[index] = (value ? '✔ ' : '') +
-                              toDoList[index].replaceAll('✔ ', '');
-                        }
-                      });
+                      _toggleToDoAtIndex(index);
                     },
                   ),
-                  title: Text(toDoList[index].replaceAll('✔ ', '')),
+                  title: Text(toDoList[index]['title']),
                   trailing: InkWell(
                     onTap: () => _removeToDoAtIndex(index),
                     child: const Icon(Icons.delete),
